@@ -22,7 +22,7 @@ export default function MapView({ posts, me, center }: { posts: Post[]; me?: Geo
               <div className="text-xs">{STATUS[p.status].dot} {STATUS[p.status].label} · {p.category}</div>
               <div className="mt-1 font-bold">{p.title}</div>
               {me && <div className="mt-1 text-xs text-gray-500">📍 {formatDistance(distanceM(me, p.location))}</div>}
-              <Link href={`/posts/${p.id}`} className="mt-2 block font-semibold text-[var(--primary)]">자세히 보기 ›</Link>
+              <Link href={`/posts/detail?id=${p.id}`} className="mt-2 block font-semibold text-[var(--primary)]">자세히 보기 ›</Link>
             </div>
           </Popup>
         </CircleMarker>

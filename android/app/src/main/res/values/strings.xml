@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">월계 재능나눔</string>
+    <string name="title_activity_main">월계 재능나눔</string>
+    <string name="package_name">kr.wolgye.talent</string>
+    <string name="custom_url_scheme">kr.wolgye.talent</string>
+</resources>

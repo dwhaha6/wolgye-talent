@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import TopBar from "@/components/TopBar";
 import StatusBadge from "@/components/StatusBadge";
 import { repo } from "@/lib/repo";
@@ -8,9 +8,14 @@ import { useSession } from "@/lib/session";
 import { distanceM, formatDistance } from "@/lib/geo";
 import type { Application, Post, User } from "@/types";
 
-/** 공고 상세 + 지원(개인/팀 역할 선택) + 주민의 상태 변경·인증 */
-export default function PostDetail() {
-  const { id } = useParams<{ id: string }>();
+/** 공고 상세 + 지원(개인/팀 역할 선택) + 주민의 상태 변경·인증
+ *  앱(정적 export) 빌드를 위해 /posts/[id] 대신 /posts/detail?id=... 형태를 쓴다. */
+export default function PostDetailPage() {
+  return <Suspense fallback={<TopBar title="공고" back />}><PostDetail /></Suspense>;
+}
+
+function PostDetail() {
+  const id = useSearchParams().get("id") ?? "";
   const router = useRouter();
   const { user, users } = useSession();
   const [post, setPost] = useState<Post | null>(null);

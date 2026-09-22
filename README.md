@@ -18,13 +18,29 @@ npm run dev      # http://localhost:3000
 
 Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습니다.
 
+## 안드로이드 앱
+
+웹 화면을 [Capacitor](https://capacitorjs.com) 로 감싼 안드로이드 앱입니다. 화면 코드는 웹과 같으므로
+**기능·화면 작업은 위의 `npm run dev` 로 브라우저에서 하면 됩니다.** Android Studio 는 앱으로 직접 돌려볼 때만 필요합니다.
+
+- **APK 받기 (설치 없이):** push·PR 마다 GitHub Actions 가 APK 를 빌드합니다.
+  저장소 → Actions → "Android APK" → 실행 하나 → 아래 Artifacts 의 `wolgye-talent-debug-apk` 다운로드 → 압축 풀어 폰에 설치.
+- **직접 빌드:** Android Studio + JDK 21 설치 후
+  ```bash
+  npm run android:sync   # 웹 빌드(out/) → android/ 에 복사
+  npm run android:open   # Android Studio 로 열어서 ▶ 실행
+  ```
+- 앱은 정적 HTML(`output: "export"`) 로 빌드되므로 **서버 기능(API 라우트, 동적 경로 `[id]`, 서버 컴포넌트 데이터 fetch)은 쓰지 않습니다.**
+  상세 화면처럼 id 가 필요하면 `/posts/detail?id=...` 처럼 쿼리로 넘깁니다.
+- 서명 키(`*.jks`, `*.keystore`)는 절대 커밋하지 않습니다.
+
 ## 화면 (6개 기능 → 9개 화면)
 
 | 경로 | 기능 | 상태 |
 |---|---|---|
 | `/` | ① 맞춤 공고 추천 피드 (학과·관심·기술·거리 점수) | 동작 (규칙 기반) |
 | `/map` | ② 위치 기반 지도 (🔴모집 🟡진행 🟢완료, 거리·도보 시간) | 동작 |
-| `/posts/[id]` | 공고 상세 · 지원 · 팀 역할 현황 · 주민의 상태 변경 | 동작 (평가 입력은 TODO) |
+| `/posts/detail?id=` | 공고 상세 · 지원 · 팀 역할 현황 · 주민의 상태 변경 | 동작 (평가 입력은 TODO) |
 | `/posts/new` | 공고 등록 (개인/팀, 역할 자리) | 동작 (지도에서 위치 고르기 TODO) |
 | `/teams` | ⑤ 팀 프로젝트 목록 | 목록만 (팀 채팅·역할 확정 TODO) |
 | `/ranking` | ③ 지역 기여 랭킹 (개인/팀/학과) | 동작 (점수 공식 임시) |
@@ -44,6 +60,7 @@ src/
   lib/geo.ts            거리·도보시간, 월계1동 좌표
   components/           TopBar, BottomTab, PostCard, StatusBadge, MapView(Leaflet)
   app/                  화면 (Next.js App Router, 모두 클라이언트 컴포넌트)
+android/                Capacitor 안드로이드 프로젝트 (웹 빌드를 감싸는 껍데기)
 docs/ARCHITECTURE.md    백엔드·인증·지도 교체 방법, 로드맵
 ```
 

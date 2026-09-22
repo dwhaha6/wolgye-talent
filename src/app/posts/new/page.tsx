@@ -20,7 +20,7 @@ export default function NewPost() {
   async function submit() {
     if (!f.title.trim()) return alert("제목을 입력해 주세요");
     const p = await repo.createPost({ ...f, authorId: user!.id, location: user!.location ?? WOLGYE_CENTER, address: (user as { address?: string }).address ?? "월계1동", teamSlots: f.isTeam ? slots : undefined });
-    router.replace(`/posts/${p.id}`);
+    router.replace(`/posts/detail?id=${p.id}`);
   }
   const field = "w-full rounded-xl bg-[var(--line)] p-3 text-[15px] outline-none";
   return (
