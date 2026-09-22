@@ -5,8 +5,8 @@
 
 > 주민에게는 필요한 재능을, 대학생에게는 실제 경험을, 그 결과는 월계1동에 남긴다.
 
-지금 상태: **화면 흐름 전체가 돌아가는 프로토타입.** 설정 없이 실행하면 가짜 데이터 + 계정 전환으로 돌고,
-Supabase 를 연결하면 실제 로그인·지원·채팅·AI 공고 초안(Gemini)이 동작합니다 → [docs/SUPABASE.md](docs/SUPABASE.md)
+지금 상태: **Supabase 에 연결된 프로토타입.** 실제 로그인·지원·수락·채팅·AI 공고 초안(Gemini)이 동작합니다.
+연결 정보를 비우면 가짜 데이터 + 계정 전환 모드로도 돕니다 → [docs/SUPABASE.md](docs/SUPABASE.md)
 당근마켓처럼 "동네 공고 피드 + 지도" 를 축으로, 토스처럼 흰 배경·큰 카드·파란 포인트의 단순한 UI 로 잡았습니다.
 누구나 원하는 부분부터 채워 넣을 수 있게 구조를 나눠 두었습니다.
 
@@ -18,7 +18,7 @@ npm run dev      # http://localhost:3000
 ```
 
 Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습니다.
-서버 없이 가짜 데이터로 돌고, '나' 탭에서 학생/주민 계정을 바꿔 가며 볼 수 있습니다. 실제 서버 연결은 [docs/SUPABASE.md](docs/SUPABASE.md).
+저장소의 `.env` 에 팀 Supabase 연결 정보가 있어 바로 실제 DB 로 실행됩니다 (가입 후 사용). 자세한 건 [docs/SUPABASE.md](docs/SUPABASE.md).
 
 ## 안드로이드 앱
 
@@ -58,8 +58,8 @@ Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습
 src/
   types/index.ts        도메인 타입 (User, Post, Application, Review, PortfolioCard, Notification…)
   lib/repo/index.ts     데이터 접근 인터페이스(Repo)  ← 백엔드를 붙일 때 여기 구현만 교체
-  lib/repo/mock.ts      가짜 데이터 + 메모리/localStorage 구현 (.env.local 없을 때)
-  lib/repo/supabase.ts  Supabase 구현 (.env.local 있을 때)
+  lib/repo/mock.ts      가짜 데이터 + 메모리/localStorage 구현 (Supabase 설정이 비었을 때)
+  lib/repo/supabase.ts  Supabase 구현 (.env 에 설정이 있을 때, 기본)
   lib/session.tsx       로그인(Supabase Auth) / mock 에서는 계정 선택
   lib/ai/draft.ts       AI 공고 초안 호출 → supabase/functions/draft-post (Gemini)
   lib/recommend.ts      추천 점수 규칙

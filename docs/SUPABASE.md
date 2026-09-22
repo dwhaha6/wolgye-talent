@@ -1,6 +1,7 @@
 # Supabase 연결 (로그인·DB·채팅·AI 초안)
 
-`.env.local` 이 없으면 앱은 가짜 데이터 + 계정 전환 모드로 돈다. 아래를 한 번 하면 실제 로그인, 폰끼리 지원·채팅, Gemini 공고 초안이 동작한다.
+저장소의 `.env` 에 팀 Supabase 프로젝트(wolgye-hackathon) 연결 정보가 들어 있어서, 받아서 `npm run dev` 만 하면 실제 DB 에 붙는다.
+아래는 프로젝트를 새로 만들 때의 절차다.
 
 ## 1. 프로젝트 만들기
 1. https://supabase.com 가입 → New project (무료 플랜, 지역은 Northeast Asia (Seoul))
@@ -10,15 +11,9 @@
 **SQL Editor** 에 [`supabase/migrations/0001_init.sql`](../supabase/migrations/0001_init.sql) 전체를 붙여 넣고 Run.
 
 ## 3. 앱에 연결
-**Project Settings → API** 에서 Project URL 과 publishable(anon) 키를 복사해 `.env.local` 을 만든다.
-
-```bash
-cp .env.example .env.local   # 두 줄 채우기
-npm run dev
-```
-
-이 키는 앱에 들어가도 되는 공개 키다. `service_role`/secret 키는 절대 넣지 않는다.
-APK 자동 빌드에도 쓰려면 GitHub 저장소 **Settings → Secrets and variables → Actions → Variables** 에 같은 이름으로 두 값을 넣는다.
+**Project Settings → API** 의 Project URL 과 publishable(anon) 키를 저장소 루트 `.env` 에 넣는다 (APK 빌드도 이 값을 쓴다).
+이 키는 앱에 들어가도 되는 공개 키다. `service_role`/secret 키와 Gemini 키는 절대 넣지 않는다.
+혼자 가짜 데이터로 돌려 보고 싶으면 `.env.local` 에 두 값을 빈 값으로 적는다 (`.env.local` 은 git 에 안 올라감).
 
 ## 4. AI 공고 초안 (Gemini, 무료)
 1. https://aistudio.google.com/apikey 에서 API 키 발급 (무료 등급은 입력이 구글 모델 개선에 쓰일 수 있음)

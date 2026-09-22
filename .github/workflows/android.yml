@@ -24,10 +24,7 @@ jobs:
           java-version: 21
 
       - run: npm ci
-      - run: npm run build
-        env: # 저장소 Settings → Secrets and variables → Actions → Variables 에 넣으면 앱이 Supabase 에 붙는다. 없으면 가짜 데이터
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_KEY }}
+      - run: npm run build  # Supabase 연결 정보는 저장소의 .env 에서 읽는다
       - run: npx cap sync android
 
       - name: Build debug APK

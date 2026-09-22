@@ -10,7 +10,7 @@
 - 화면: 상태를 거의 갖지 않고 repo 를 호출해 그린다.
 
 ## 백엔드 (Supabase)
-- `src/lib/repo/index.ts` 가 환경변수로 구현을 고른다: `.env.local` 있으면 `supabase.ts`, 없으면 `mock.ts`. 화면은 둘을 구분하지 않는다.
+- `src/lib/repo/index.ts` 가 환경변수로 구현을 고른다: `.env` 에 Supabase 설정이 있으면 `supabase.ts`, 비어 있으면 `mock.ts`. 화면은 둘을 구분하지 않는다.
 - `Repo` 에 함수를 추가하면 mock 과 supabase 둘 다 구현한다.
 - 스키마·권한은 `supabase/migrations/`, 서버에서 비밀 키가 필요한 일(AI 호출)은 `supabase/functions/`.
 - 설정 방법은 [SUPABASE.md](SUPABASE.md).

@@ -30,5 +30,5 @@ import { mockRepo } from "./mock";
 import { supabaseRepo } from "./supabase";
 import { supabase } from "../supabase";
 
-// .env.local 에 Supabase 주소·키가 있으면 실제 DB, 없으면 가짜 데이터(계정 전환으로 화면 확인)
+// .env 에 Supabase 주소·키가 있으면 실제 DB, 비어 있으면 가짜 데이터(계정 전환으로 화면 확인)
 export const repo: Repo = supabase ? supabaseRepo(supabase) : mockRepo; // ← 백엔드 교체 지점
