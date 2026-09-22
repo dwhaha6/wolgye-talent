@@ -1,7 +1,7 @@
 # 설계 메모
 
 ## 데이터 흐름
-주민·상인 공고 등록 → (추천 점수·거리) 학생 알림 → 개인/팀 지원 → 수행 → 주민·상인 평가·인증 → 포트폴리오 카드 + 기여 점수 + 랭킹
+주민·상인 공고 등록(AI 초안) → (추천 점수·거리) 학생 알림 → 개인/팀 지원 → 채팅·수락 → 수행(진행 기록) → 주민·상인 평가·인증 → 포트폴리오 카드 + 기여 점수 + 랭킹 → Notion/블로그 내보내기
 
 ## 계층
 - `types`: 모든 계층이 공유하는 계약. 서버 스키마도 이 타입을 기준으로 만든다.
@@ -9,11 +9,11 @@
 - `session`: 현재 사용자. 지금은 드롭다운으로 계정을 고른다.
 - 화면: 상태를 거의 갖지 않고 repo 를 호출해 그린다.
 
-## 백엔드 붙이기 (예: Supabase)
-1. `types` 의 인터페이스대로 테이블을 만든다: users, posts, applications, reviews, portfolio_cards, notifications.
-2. `src/lib/repo/supabase.ts` 에 `Repo` 를 구현한다 (함수 12개).
-3. `src/lib/repo/index.ts` 의 `export const repo = mockRepo` 를 새 구현으로 바꾼다.
-4. `session.tsx` 를 Supabase Auth 로 바꾼다. 화면 코드는 그대로.
+## 백엔드 (Supabase)
+- `src/lib/repo/index.ts` 가 환경변수로 구현을 고른다: `.env.local` 있으면 `supabase.ts`, 없으면 `mock.ts`. 화면은 둘을 구분하지 않는다.
+- `Repo` 에 함수를 추가하면 mock 과 supabase 둘 다 구현한다.
+- 스키마·권한은 `supabase/migrations/`, 서버에서 비밀 키가 필요한 일(AI 호출)은 `supabase/functions/`.
+- 설정 방법은 [SUPABASE.md](SUPABASE.md).
 
 ## 지도 교체
 `components/MapView.tsx` 만 카카오/네이버 SDK 로 다시 쓰면 된다. props(`posts`, `me`, `center`) 는 유지.
@@ -26,5 +26,5 @@
 해결 수×10 + 평가 평균×4 + 난이도 합×3. 실제 운영 전 가중치 재조정.
 
 ## 로드맵
-1. 평가 입력 + 포트폴리오 자동 생성  2. 팀 역할 확정·팀 랭킹  3. 알림 생성 규칙 + 웹푸시
-4. Supabase 연결 + 로그인(학교 이메일)  5. 공고 위치 지도 선택  6. 관리자(주민센터) 화면
+1. 진행 기록(과정·결과·매출 변화) + 평가 입력 + 포트폴리오 자동 생성(AI 요약)  2. Notion/블로그 내보내기
+3. 팀 역할 확정·팀 랭킹  4. 알림 생성 규칙 + 푸시  5. 공고 위치 지도 선택  6. 관리자(주민센터) 화면

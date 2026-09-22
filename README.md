@@ -5,7 +5,8 @@
 
 > 주민에게는 필요한 재능을, 대학생에게는 실제 경험을, 그 결과는 월계1동에 남긴다.
 
-지금 상태: **화면 흐름 전체가 돌아가는 프로토타입** (가짜 데이터, 로그인 없음).
+지금 상태: **화면 흐름 전체가 돌아가는 프로토타입.** 설정 없이 실행하면 가짜 데이터 + 계정 전환으로 돌고,
+Supabase 를 연결하면 실제 로그인·지원·채팅·AI 공고 초안(Gemini)이 동작합니다 → [docs/SUPABASE.md](docs/SUPABASE.md)
 당근마켓처럼 "동네 공고 피드 + 지도" 를 축으로, 토스처럼 흰 배경·큰 카드·파란 포인트의 단순한 UI 로 잡았습니다.
 누구나 원하는 부분부터 채워 넣을 수 있게 구조를 나눠 두었습니다.
 
@@ -17,6 +18,7 @@ npm run dev      # http://localhost:3000
 ```
 
 Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습니다.
+서버 없이 가짜 데이터로 돌고, '나' 탭에서 학생/주민 계정을 바꿔 가며 볼 수 있습니다. 실제 서버 연결은 [docs/SUPABASE.md](docs/SUPABASE.md).
 
 ## 안드로이드 앱
 
@@ -40,8 +42,10 @@ Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습
 |---|---|---|
 | `/` | ① 맞춤 공고 추천 피드 (학과·관심·기술·거리 점수) | 동작 (규칙 기반) |
 | `/map` | ② 위치 기반 지도 (🔴모집 🟡진행 🟢완료, 거리·도보 시간) | 동작 |
-| `/posts/detail?id=` | 공고 상세 · 지원 · 팀 역할 현황 · 주민의 상태 변경 | 동작 (평가 입력은 TODO) |
-| `/posts/new` | 공고 등록 (개인/팀, 역할 자리) | 동작 (지도에서 위치 고르기 TODO) |
+| `/posts/detail?id=` | 공고 상세 · 지원 · 지원자 수락/거절 · 팀 역할 현황 · 상태 변경 | 동작 (평가 입력은 TODO) |
+| `/posts/new` | 공고 등록. 대충 적으면 AI(Gemini)가 제목·필요 재능·추천 학과·결과물·기간 초안 | 동작 (지도에서 위치 고르기 TODO) |
+| `/chats`, `/chats/room?id=` | 가게 ↔ 학생 채팅 (지원서마다 채팅방, 실시간) | 동작 |
+| `/login`, `/onboarding` | 이메일 로그인 · 프로필(학생/주민·상인) 만들기 | Supabase 연결 시 |
 | `/teams` | ⑤ 팀 프로젝트 목록 | 목록만 (팀 채팅·역할 확정 TODO) |
 | `/ranking` | ③ 지역 기여 랭킹 (개인/팀/학과) | 동작 (점수 공식 임시) |
 | `/portfolio` | ④ 인증형 포트폴리오 카드 | 동작 (카드 자동 생성 로직 TODO) |
@@ -54,14 +58,18 @@ Node 18 이상. 지도는 OpenStreetMap(Leaflet) 이라 API 키가 필요 없습
 src/
   types/index.ts        도메인 타입 (User, Post, Application, Review, PortfolioCard, Notification…)
   lib/repo/index.ts     데이터 접근 인터페이스(Repo)  ← 백엔드를 붙일 때 여기 구현만 교체
-  lib/repo/mock.ts      가짜 데이터 + 메모리/localStorage 구현 (지금 사용 중)
-  lib/session.tsx       임시 로그인(계정 선택). 실제 인증은 이 파일만 교체
+  lib/repo/mock.ts      가짜 데이터 + 메모리/localStorage 구현 (.env.local 없을 때)
+  lib/repo/supabase.ts  Supabase 구현 (.env.local 있을 때)
+  lib/session.tsx       로그인(Supabase Auth) / mock 에서는 계정 선택
+  lib/ai/draft.ts       AI 공고 초안 호출 → supabase/functions/draft-post (Gemini)
   lib/recommend.ts      추천 점수 규칙
   lib/geo.ts            거리·도보시간, 월계1동 좌표
   components/           TopBar, BottomTab, PostCard, StatusBadge, MapView(Leaflet)
   app/                  화면 (Next.js App Router, 모두 클라이언트 컴포넌트)
 android/                Capacitor 안드로이드 프로젝트 (웹 빌드를 감싸는 껍데기)
-docs/ARCHITECTURE.md    백엔드·인증·지도 교체 방법, 로드맵
+supabase/                DB 스키마(migrations), 서버 함수(functions)
+docs/ARCHITECTURE.md    설계, 로드맵
+docs/SUPABASE.md        Supabase·Gemini 연결 방법
 ```
 
 핵심 원칙 하나: **화면은 `repo` 인터페이스만 부른다.** 그래서 나중에 Supabase/REST 를 붙여도 화면 코드를 다시 짜지 않고
@@ -75,7 +83,6 @@ docs/ARCHITECTURE.md    백엔드·인증·지도 교체 방법, 로드맵
 - [ ] 완료·인증 시 평가 입력 → 포트폴리오 카드 자동 생성 (`repo.updatePostStatus` 확장)
 - [ ] 팀 역할 지원·확정 흐름 (`Post.teamSlots.filled`)
 - [ ] 알림 생성 규칙: 새 공고가 오면 관심·거리 조건에 맞는 학생에게 (`recommend.ts` 재사용)
-- [ ] Supabase 구현 `lib/repo/supabase.ts` + 실제 로그인
 - [ ] 카카오/네이버 지도로 교체 (`components/MapView.tsx` 만 바꾸면 됨)
 
 자세한 방법은 [CONTRIBUTING.md](CONTRIBUTING.md), 설계는 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

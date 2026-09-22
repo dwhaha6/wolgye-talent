@@ -5,7 +5,7 @@ import TopBar from "@/components/TopBar";
 import { repo } from "@/lib/repo";
 import { useSession } from "@/lib/session";
 import { WOLGYE_CENTER } from "@/lib/geo";
-import { drafter, type PostDraft } from "@/lib/ai/draft";
+import { draftPost, type PostDraft } from "@/lib/ai/draft";
 import type { Category, RoleSlot } from "@/types";
 
 const CATS: Category[] = ["디자인", "영상", "사진", "SNS홍보", "웹/앱", "디지털도움", "기타"];
@@ -30,7 +30,8 @@ export default function NewPost() {
   async function makeDraft() {
     if (!memo.trim()) return alert("가게 고민을 한 줄이라도 적어 주세요");
     setDrafting(true);
-    const d = await drafter.draft(memo);
+    let d: PostDraft;
+    try { d = await draftPost(memo); } catch (e) { setDrafting(false); return alert((e as Error).message); }
     setDraft(d);
     setF({ title: d.title, category: d.category, description: d.description, reward: d.reward ?? f.reward, durationDays: d.durationDays, difficulty: d.difficulty, isTeam: d.isTeam });
     if (d.teamSlots) setSlots(d.teamSlots);

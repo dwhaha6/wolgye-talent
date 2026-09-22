@@ -1,4 +1,4 @@
-import type { Application, Notification, Post, PortfolioCard, RankRow, Review, User } from "@/types";
+import type { Application, ChatMessage, Notification, Post, PortfolioCard, RankRow, Review, User } from "@/types";
 import type { Repo } from "./index";
 import { distanceM } from "../geo";
 
@@ -30,6 +30,11 @@ const applications: Application[] = [
   { id: "a2", postId: "p1", studentId: "s1", message: "포스터 3종 시안 드릴 수 있어요.", status: "pending", createdAt: "2026-09-14T12:00:00Z" },
 ];
 
+const messages: ChatMessage[] = [
+  { id: "m1", applicationId: "a2", senderId: "s1", body: "안녕하세요! 포스터 공고 보고 연락드려요.", createdAt: "2026-09-14T12:01:00Z" },
+  { id: "m2", applicationId: "a2", senderId: "r1", body: "반가워요. 신메뉴 사진 먼저 보내 드릴게요.", createdAt: "2026-09-14T12:30:00Z" },
+];
+
 const reviews: Review[] = [
   { postId: "p6", studentId: "s4", rating: 5, comment: "게시물 반응이 정말 좋아졌어요.", verified: true },
   { postId: "p7", studentId: "s3", rating: 5, comment: "사진이 깔끔하고 빨랐어요.", verified: true },
@@ -50,13 +55,14 @@ const notifications: Notification[] = [
 const KEY = "wolgye-mock-v1";
 function load() {
   if (typeof window === "undefined") return;
-  try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); posts.splice(0, posts.length, ...d.posts); applications.splice(0, applications.length, ...d.applications); } } catch {}
+  try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); posts.splice(0, posts.length, ...d.posts); applications.splice(0, applications.length, ...d.applications); if (d.messages) messages.splice(0, messages.length, ...d.messages); } } catch {}
 }
 function save() {
   if (typeof window === "undefined") return;
-  try { localStorage.setItem(KEY, JSON.stringify({ posts, applications })); } catch {}
+  try { localStorage.setItem(KEY, JSON.stringify({ posts, applications, messages })); } catch {}
 }
 let loaded = false; const ensure = () => { if (!loaded) { load(); loaded = true; } };
+const listeners = new Set<(m: ChatMessage) => void>();
 const wait = <T,>(v: T) => new Promise<T>((r) => setTimeout(() => r(v), 80));
 
 export const mockRepo: Repo = {
@@ -68,6 +74,24 @@ export const mockRepo: Repo = {
   async updatePostStatus(id, status) { ensure(); const p = posts.find((x) => x.id === id); if (p) p.status = status; save(); },
   async listApplications(postId) { ensure(); return wait(applications.filter((a) => !postId || a.postId === postId)); },
   async apply(postId, studentId, message) { ensure(); const a: Application = { id: `a${Date.now()}`, postId, studentId, message, status: "pending", createdAt: new Date().toISOString() }; applications.push(a); save(); return wait(a); },
+  async getApplication(id) { ensure(); return wait(applications.find((a) => a.id === id)); },
+  async updateApplicationStatus(id, status) { ensure(); const a = applications.find((x) => x.id === id); if (a) a.status = status; save(); },
+  async listChatRooms(userId) {
+    ensure();
+    const rooms = applications.flatMap((a) => {
+      const post = posts.find((p) => p.id === a.postId);
+      if (!post || (a.studentId !== userId && post.authorId !== userId)) return [];
+      const last = messages.filter((m) => m.applicationId === a.id).at(-1);
+      return [{ application: a, post, other: users.find((u) => u.id === (a.studentId === userId ? post.authorId : a.studentId)), last }];
+    });
+    return wait(rooms.sort((x, y) => (y.last?.createdAt ?? y.application.createdAt).localeCompare(x.last?.createdAt ?? x.application.createdAt)));
+  },
+  async listMessages(applicationId) { ensure(); return wait(messages.filter((m) => m.applicationId === applicationId)); },
+  async sendMessage(applicationId, senderId, body) {
+    ensure(); const m: ChatMessage = { id: `m${Date.now()}`, applicationId, senderId, body, createdAt: new Date().toISOString() };
+    messages.push(m); save(); listeners.forEach((l) => l(m)); return wait(m);
+  },
+  onMessage(applicationId, cb) { const l = (m: ChatMessage) => { if (m.applicationId === applicationId) cb(m); }; listeners.add(l); return () => { listeners.delete(l); }; },
   async listReviews(studentId) { return wait(reviews.filter((r) => !studentId || r.studentId === studentId)); },
   async listPortfolio(studentId) { return wait(portfolio.filter((c) => c.studentId === studentId)); },
   async listNotifications(userId) { return wait(notifications.filter((n) => n.userId === userId)); },

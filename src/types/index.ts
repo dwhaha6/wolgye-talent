@@ -90,3 +90,13 @@ export interface Notification {
 }
 
 export interface RankRow { id: string; label: string; sub: string; score: number; solved: number }
+
+export interface ChatMessage {           // 채팅 메시지. 채팅방 = 지원서 하나 (공고 작성자 ↔ 지원 학생)
+  id: string;
+  applicationId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface ChatRoom { application: Application; post: Post; other: User | undefined; last?: ChatMessage }
