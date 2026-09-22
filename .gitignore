@@ -35,3 +35,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .publish.sh
+
+# android 서명 키 — public 저장소에 절대 올리지 않는다
+*.jks
+*.keystore
+keystore.properties

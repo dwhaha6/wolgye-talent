@@ -6,12 +6,14 @@ const tabs = [
   { href: "/", label: "홈", icon: "🏠" },
   { href: "/map", label: "지도", icon: "🗺️" },
   { href: "/posts/new", label: "등록", icon: "➕" },
+  { href: "/chats", label: "채팅", icon: "💬" },
   { href: "/ranking", label: "랭킹", icon: "🏆" },
   { href: "/me", label: "나", icon: "👤" },
 ];
 
 export default function BottomTab() {
-  const path = usePathname();
+  const path = usePathname() ?? "/";
+  if (path.startsWith("/login") || path.startsWith("/onboarding")) return null;
   return (
     <nav className="fixed bottom-0 left-1/2 z-[1000] w-full max-w-[480px] -translate-x-1/2 border-t border-[var(--line)] bg-white/95 backdrop-blur">
       <ul className="flex">

@@ -18,7 +18,7 @@ export default function Notifications() {
       <section className="flex flex-col gap-2 px-4">
         {list.length === 0 && <EmptyState text="새 알림이 없어요" />}
         {list.map((n) => (
-          <Link key={n.id} href={n.postId ? `/posts/${n.postId}` : "#"} className={`card ${n.read ? "opacity-70" : ""}`}>
+          <Link key={n.id} href={n.postId ? `/posts/detail?id=${n.postId}` : "#"} className={`card ${n.read ? "opacity-70" : ""}`}>
             {n.distanceM !== undefined && <p className="text-xs font-semibold text-[var(--primary)]">📍 {n.distanceM}m 거리</p>}
             <p className="mt-0.5 text-[15px]">{n.text}</p>
             <p className="sub mt-1 text-xs">{new Date(n.createdAt).toLocaleString("ko-KR")}</p>

@@ -5,7 +5,7 @@ import { formatDistance } from "@/lib/geo";
 
 export default function PostCard({ post, authorName, distance, score }: { post: Post; authorName?: string; distance?: number; score?: number }) {
   return (
-    <Link href={`/posts/${post.id}`} className="card block active:opacity-80">
+    <Link href={`/posts/detail?id=${post.id}`} className="card block active:opacity-80">
       <div className="mb-2 flex items-center justify-between">
         <span className="chip chip-on">{post.category}{post.isTeam ? " · 팀" : ""}</span>
         <StatusBadge status={post.status} />

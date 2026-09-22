@@ -1,0 +1,37 @@
+# push·PR 마다 GitHub 서버에서 안드로이드 APK 를 자동으로 빌드한다.
+# 결과 APK 는 Actions 탭 → 해당 실행 → Artifacts 의 "wolgye-talent-debug-apk" 에서 받는다.
+name: Android APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Android SDK 가 기본 설치돼 있음
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+      - run: npm run build  # Supabase 연결 정보는 저장소의 .env 에서 읽는다
+      - run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wolgye-talent-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
