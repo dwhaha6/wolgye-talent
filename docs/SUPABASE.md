@@ -31,7 +31,7 @@ APK 자동 빌드에도 쓰려면 GitHub 저장소 **Settings → Secrets and va
      npx supabase secrets set GEMINI_API_KEY=발급받은키 --project-ref <프로젝트ref>
      npx supabase functions deploy draft-post --project-ref <프로젝트ref>
      ```
-모델을 바꾸려면 secret `GEMINI_MODEL` 을 설정한다 (기본 `gemini-2.5-flash`).
+모델은 무료 Flash 모델을 차례로 시도한다 (붐비면 다음 모델). 순서를 바꾸려면 secret `GEMINI_MODELS=모델1,모델2`.
 
 ## 구조 메모
 - 테이블: profiles(auth.users 1:1), posts, applications, messages, reviews, portfolio_cards, notifications
