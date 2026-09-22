@@ -73,7 +73,8 @@ export function supabaseRepo(db: SupabaseClient): Repo {
     onMessage(applicationId, cb) {
       const ch = db.channel(`messages:${applicationId}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `application_id=eq.${applicationId}` }, (e) => cb(toMsg(e.new)))
-        .subscribe();
+        // 연결까지 몇 초 걸린다. 그 사이 온 메시지를 놓치지 않게 연결되면 한 번 다시 불러온다 (화면에서 id 로 중복 제거)
+        .subscribe((status) => { if (status === "SUBSCRIBED") repo.listMessages(applicationId).then((ms) => ms.forEach(cb)); });
       return () => { db.removeChannel(ch); };
     },
 
